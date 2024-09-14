@@ -34,5 +34,9 @@
             <artifactId>xml-resolver</artifactId>
             <version>1.2</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.pixee</groupId>
+            <artifactId>java-security-toolkit-xstream</artifactId>
+        </dependency>
     </dependencies>
 </project>
