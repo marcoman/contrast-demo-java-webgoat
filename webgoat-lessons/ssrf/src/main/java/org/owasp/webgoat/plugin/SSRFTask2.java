@@ -1,5 +1,6 @@
 package org.owasp.webgoat.plugin;
 
+import io.github.pixee.security.BoundedLineReader;
 import org.owasp.webgoat.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.assignments.AssignmentHints;
 import org.owasp.webgoat.assignments.AssignmentPath;
@@ -74,7 +75,7 @@ public class SSRFTask2 extends AssignmentEndpoint {
                     BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
                     String inputLine;
     
-                    while ((inputLine = in.readLine()) != null) {
+                    while ((inputLine = BoundedLineReader.readLine(in, 5_000_000)) != null) {
                         html.append(inputLine);
                     }
                     in.close();
