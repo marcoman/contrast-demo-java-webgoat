@@ -157,6 +157,7 @@
         <sauce_junit.version>2.1.20</sauce_junit.version>
         <selenium-java.version>2.48.2</selenium-java.version>
         <spring.security.version>3.2.4.RELEASE</spring.security.version>
+        <versions.java-security-toolkit>1.2.0</versions.java-security-toolkit>
     </properties>
 
     <modules>
@@ -258,5 +259,13 @@
             </plugin>
         </plugins>
     </build>
-
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.pixee</groupId>
+                <artifactId>java-security-toolkit</artifactId>
+                <version>${versions.java-security-toolkit}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

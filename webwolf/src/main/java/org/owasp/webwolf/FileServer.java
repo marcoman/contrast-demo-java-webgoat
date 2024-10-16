@@ -2,6 +2,7 @@ package org.owasp.webwolf;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
+import io.github.pixee.security.Filenames;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -44,8 +45,8 @@ public class FileServer {
         WebGoatUser user = (WebGoatUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         File destinationDir = new File(fileLocatation, user.getUsername());
         destinationDir.mkdirs();
-        myFile.transferTo(new File(destinationDir, myFile.getOriginalFilename()));
-        log.debug("File saved to {}", new File(destinationDir, myFile.getOriginalFilename()));
+        myFile.transferTo(new File(destinationDir, Filenames.toSimpleFileName(myFile.getOriginalFilename())));
+        log.debug("File saved to {}", new File(destinationDir, Filenames.toSimpleFileName(myFile.getOriginalFilename())));
         Files.touch(new File(destinationDir, user.getUsername() + "_changed"));
 
         ModelMap model = new ModelMap();
