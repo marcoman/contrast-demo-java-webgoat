@@ -1,5 +1,6 @@
 package org.owasp.webgoat.plugin.introduction;
 
+import java.sql.PreparedStatement;
 import org.owasp.webgoat.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.assignments.AssignmentHints;
 import org.owasp.webgoat.assignments.AssignmentPath;
@@ -61,12 +62,12 @@ public class SqlInjectionLesson5a extends AssignmentEndpoint {
     String query = "";
     try {
       Connection connection = DatabaseUtilities.getConnection(getWebSession());
-      query = "SELECT * FROM user_data WHERE first_name = 'John' and last_name = '" + accountName + "'";
-      try(Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+      query = "SELECT * FROM user_data WHERE first_name = 'John' and last_name = ?";
+      try(PreparedStatement statement = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE,
               ResultSet.CONCUR_READ_ONLY)) {
 
-        ResultSet results = statement.executeQuery(query);
-
+        statement.setString(1, accountName);
+        ResultSet results = statement.execute();
         if ((results != null) && (results.first())) {
           ResultSetMetaData resultsMetaData = results.getMetaData();
           StringBuilder output = new StringBuilder();
@@ -84,6 +85,7 @@ public class SqlInjectionLesson5a extends AssignmentEndpoint {
           return trackProgress(failed().feedback("sql-injection.5a.no.results").output("Your query was: " + query).build());
 
         }
+
       } catch (SQLException sqle) {
 
         return trackProgress(failed().output(sqle.getMessage() + "<br> Your query was: " + query).build());

@@ -1,5 +1,6 @@
 package org.owasp.webgoat.plugin.challenge6;
 
+import java.sql.PreparedStatement;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.owasp.webgoat.assignments.AssignmentEndpoint;
@@ -46,11 +47,10 @@ public class Assignment6 extends AssignmentEndpoint {
         if (attackResult == null) {
             Connection connection = DatabaseUtilities.getConnection(webSession);
             checkDatabase(connection);
-
-            String checkUserQuery = "select userid from " + USERS_TABLE_NAME + " where userid = '" + username_reg + "'";
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(checkUserQuery);
-
+            String checkUserQuery = "select userid from " + USERS_TABLE_NAME + " where userid = ?";
+            PreparedStatement statement = connection.prepareStatement(checkUserQuery);
+            statement.setString(1, username_reg);
+            ResultSet resultSet = statement.execute();
             if (resultSet.next()) {
                 attackResult = failed().feedback("user.exists").feedbackArgs(username_reg).build();
             } else {
@@ -61,6 +61,8 @@ public class Assignment6 extends AssignmentEndpoint {
                 preparedStatement.execute();
                 attackResult = success().feedback("user.created").feedbackArgs(username_reg).build();
             }
+
+
         }
         return attackResult;
     }
@@ -103,9 +105,9 @@ public class Assignment6 extends AssignmentEndpoint {
     }
 
     private void createChallengeTable(Connection connection) {
-        Statement statement = null;
+        PreparedStatement statement = null;
         try {
-            statement = connection.createStatement();
+            statement = connection.prepareStatement(insertData2);
             String dropTable = "DROP TABLE " + USERS_TABLE_NAME;
             statement.executeUpdate(dropTable);
         } catch (SQLException e) {
@@ -119,15 +121,15 @@ public class Assignment6 extends AssignmentEndpoint {
                     + "password varchar(30)"
                     + ")";
             statement.executeUpdate(createTableStatement);
-
             String insertData1 = "INSERT INTO " + USERS_TABLE_NAME + " VALUES ('larry', 'larry@webgoat.org', 'larryknows')";
-            String insertData2 = "INSERT INTO " + USERS_TABLE_NAME + " VALUES ('tom', 'tom@webgoat.org', '" + PASSWORD_TOM + "')";
             String insertData3 = "INSERT INTO " + USERS_TABLE_NAME + " VALUES ('alice', 'alice@webgoat.org', 'rt*(KJ()LP())$#**')";
             String insertData4 = "INSERT INTO " + USERS_TABLE_NAME + " VALUES ('eve', 'eve@webgoat.org', '**********')";
             statement.executeUpdate(insertData1);
-            statement.executeUpdate(insertData2);
+            statement.setString(1, PASSWORD_TOM);
+            statement.execute();
             statement.executeUpdate(insertData3);
             statement.executeUpdate(insertData4);
+
         } catch (SQLException e) {
             log.error("Unable create table", e);
         }

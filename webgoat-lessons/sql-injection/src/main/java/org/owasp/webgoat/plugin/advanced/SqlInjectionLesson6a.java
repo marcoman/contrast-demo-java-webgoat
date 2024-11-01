@@ -1,5 +1,6 @@
 package org.owasp.webgoat.plugin.advanced;
 
+import java.sql.PreparedStatement;
 import org.owasp.webgoat.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.assignments.AssignmentHints;
 import org.owasp.webgoat.assignments.AssignmentPath;
@@ -59,15 +60,15 @@ public class SqlInjectionLesson6a extends AssignmentEndpoint {
         String query = "";
         try(Connection connection = DatabaseUtilities.getConnection(getWebSession())) {
             boolean usedUnion = true;
-            query = "SELECT * FROM user_data WHERE last_name = '" + accountName + "'";
+            query = "SELECT * FROM user_data WHERE last_name = ?";
             //Check if Union is used
             if(!accountName.matches("(?i)(^[^-/*;)]*)(\\s*)UNION(.*$)")) {
                 usedUnion = false;
             }
-            try(Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+            try(PreparedStatement statement = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE,
                     ResultSet.CONCUR_READ_ONLY)) {
-                ResultSet results = statement.executeQuery(query);
-
+                statement.setString(1, accountName);
+                ResultSet results = statement.execute();
                 if ((results != null) && (results.first())) {
                     ResultSetMetaData resultsMetaData = results.getMetaData();
                     StringBuffer output = new StringBuffer();
@@ -90,6 +91,7 @@ public class SqlInjectionLesson6a extends AssignmentEndpoint {
                 } else {
                     return trackProgress(failed().feedback("sql-injection.advanced.6a.no.results").output(" Your query was: " + query).build());
                 }
+
             } catch (SQLException sqle) {
                 return trackProgress(failed().output(sqle.getMessage() + "<br> Your query was: " + query).build());
             }

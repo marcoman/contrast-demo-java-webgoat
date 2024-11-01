@@ -1,5 +1,6 @@
 package org.owasp.webgoat.plugin.challenge5.challenge6;
 
+import java.sql.PreparedStatement;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.owasp.webgoat.assignments.AssignmentEndpoint;
@@ -66,9 +67,9 @@ public class Assignment5 extends AssignmentEndpoint {
     }
 
     private void createChallengeTable(Connection connection) {
-        Statement statement = null;
+        PreparedStatement statement = null;
         try {
-            statement = connection.createStatement();
+            statement = connection.prepareStatement(insertData2);
             String dropTable = "DROP TABLE " + USERS_TABLE_NAME;
             statement.executeUpdate(dropTable);
         } catch (SQLException e) {
@@ -82,15 +83,15 @@ public class Assignment5 extends AssignmentEndpoint {
                     + "password varchar(30)"
                     + ")";
             statement.executeUpdate(createTableStatement);
-
             String insertData1 = "INSERT INTO " + USERS_TABLE_NAME + " VALUES ('larry', 'larry@webgoat.org', 'larryknows')";
-            String insertData2 = "INSERT INTO " + USERS_TABLE_NAME + " VALUES ('tom', 'tom@webgoat.org', '" + PASSWORD_TOM + "')";
             String insertData3 = "INSERT INTO " + USERS_TABLE_NAME + " VALUES ('alice', 'alice@webgoat.org', 'rt*(KJ()LP())$#**')";
             String insertData4 = "INSERT INTO " + USERS_TABLE_NAME + " VALUES ('eve', 'eve@webgoat.org', '**********')";
             statement.executeUpdate(insertData1);
-            statement.executeUpdate(insertData2);
+            statement.setString(1, PASSWORD_TOM);
+            statement.execute();
             statement.executeUpdate(insertData3);
             statement.executeUpdate(insertData4);
+
         } catch (SQLException e) {
             log.error("Unable create table", e);
         }

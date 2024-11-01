@@ -1,6 +1,7 @@
 
 package org.owasp.webgoat.plugin.introduction;
 
+import java.sql.PreparedStatement;
 import org.owasp.webgoat.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.assignments.AssignmentHints;
 import org.owasp.webgoat.assignments.AssignmentPath;
@@ -26,16 +27,17 @@ public class SqlInjectionLesson9 extends AssignmentEndpoint {
 
     protected AttackResult injectableQueryIntegrity(String name, String auth_tan) {
         StringBuffer output = new StringBuffer();
-        String query = "SELECT * FROM employees WHERE last_name = '" + name + "' AND auth_tan = '" + auth_tan + "'";
+        String query = "SELECT * FROM employees WHERE last_name = ? AND auth_tan = ?";
 
         try {
             Connection connection = DatabaseUtilities.getConnection(getWebSession());
 
             try {
-                Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                PreparedStatement statement = connection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
                 SqlInjectionLesson8.log(connection, query);
-                ResultSet results = statement.executeQuery(query);
-
+                statement.setString(1, name);
+                statement.setString(2, auth_tan);
+                ResultSet results = statement.execute();
                 if (results.getStatement() != null) {
                     if (results.first()) {
                         output.append(SqlInjectionLesson8.generateTable(results));
@@ -45,6 +47,7 @@ public class SqlInjectionLesson9 extends AssignmentEndpoint {
                     }
 
                 }
+
             } catch (SQLException e) {
                 System.err.println(e.getMessage());
                 return trackProgress(failed().feedback("sql-injection.error").output("<br><span class='feedback-negative'>" + e.getMessage() + "</span>").build());
