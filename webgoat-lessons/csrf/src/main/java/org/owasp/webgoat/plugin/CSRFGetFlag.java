@@ -1,5 +1,6 @@
 package org.owasp.webgoat.plugin;
 
+import java.security.SecureRandom;
 import org.owasp.webgoat.assignments.Endpoint;
 import org.owasp.webgoat.i18n.PluginMessages;
 import org.owasp.webgoat.session.UserSessionData;
@@ -44,13 +45,13 @@ public class CSRFGetFlag extends Endpoint {
 
         if (referer.equals("NULL")) {
             if (req.getParameter("csrf").equals("true")) {
-                Random random = new Random();
+                Random random = new SecureRandom();
                 userSessionData.setValue("csrf-get-success", random.nextInt(65536));
                 response.put("success", true);
                 response.put("message", pluginMessages.getMessage("csrf-get-null-referer.success"));
                 response.put("flag", userSessionData.getValue("csrf-get-success"));
             } else {
-                Random random = new Random();
+                Random random = new SecureRandom();
                 userSessionData.setValue("csrf-get-success", random.nextInt(65536));
                 response.put("success", true);
                 response.put("message", pluginMessages.getMessage("csrf-get-other-referer.success"));
@@ -61,7 +62,7 @@ public class CSRFGetFlag extends Endpoint {
             response.put("message", "Appears the request came from the original host");
             response.put("flag", null);
         } else {
-            Random random = new Random();
+            Random random = new SecureRandom();
             userSessionData.setValue("csrf-get-success", random.nextInt(65536));
             response.put("success", true);
             response.put("message", pluginMessages.getMessage("csrf-get-other-referer.success"));
