@@ -1,5 +1,7 @@
 package org.owasp.webgoat.plugin;
 
+import io.github.pixee.security.HostValidator;
+import io.github.pixee.security.Urls;
 import org.owasp.webgoat.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.assignments.AssignmentHints;
 import org.owasp.webgoat.assignments.AssignmentPath;
@@ -69,7 +71,7 @@ public class SSRFTask2 extends AssignmentEndpoint {
                 StringBuffer html = new StringBuffer();
 
                 if (url.matches("http://ifconfig.pro")){
-                    URL u = new URL(url);
+                    URL u = Urls.create(url, Urls.HTTP_PROTOCOLS, HostValidator.DENY_COMMON_INFRASTRUCTURE_TARGETS);
                     URLConnection urlConnection = u.openConnection();
                     BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
                     String inputLine;
