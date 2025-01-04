@@ -2,6 +2,7 @@ package org.owasp.webgoat.plugin;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import io.github.pixee.security.xstream.HardeningConverter;
 import org.owasp.webgoat.assignments.AssignmentEndpoint;
 import org.owasp.webgoat.assignments.AssignmentPath;
 import org.owasp.webgoat.assignments.AttackResult;
@@ -54,6 +55,7 @@ public class VulnerableComponentsLesson extends AssignmentEndpoint {
 
 		
         XStream xstream = new XStream(new DomDriver());
+        xstream.registerConverter(new HardeningConverter());
         xstream.setClassLoader(Contact.class.getClassLoader());
 
         xstream.processAnnotations(Contact.class);
